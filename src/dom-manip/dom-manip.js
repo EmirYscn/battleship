@@ -1,9 +1,5 @@
-import { initPlayers } from "../game-logic/game-logic";
-
 function initDom() {
-  console.log("in initdom");
   populateBoard();
-  populateGameboard();
 }
 
 function populateBoard() {
@@ -26,28 +22,17 @@ function populateBoard() {
   });
 }
 
-function populateGameboard() {
-  const boards = Array.from(document.querySelectorAll(".board"));
-
-  const boardsChildNodes = [
-    Array.from(boards[0].childNodes),
-    Array.from(boards[1].childNodes),
-  ];
-
-  const [player1, player2] = initPlayers();
-
-  const players = [
-    { player: player1, board: boardsChildNodes[0] },
-    { player: player2, board: boardsChildNodes[1] },
-  ];
-
+function populateGameboards(players) {
   players.forEach((player) => {
     renderPlayerBoard(player.player, player.board);
   });
 }
 function renderPlayerBoard(player, board) {
+  console.log("in render");
+  if (player.type === "ai") return;
+
   const currentPlayer = player;
-  const playerBoardsChildNodes = board;
+  const playerBoardsChildNodes = Array.from(board);
 
   currentPlayer.gameboard.currentCoords.forEach((coord) => {
     const [x_coord, y_coord] = coord;
@@ -57,7 +42,7 @@ function renderPlayerBoard(player, board) {
       const column = parseInt(div.dataset.column);
       return row === x_coord && column === y_coord;
     });
-    console.log(div);
+
     div.classList.add("ship");
   });
 }
@@ -68,4 +53,4 @@ function createDiv(className) {
   return div;
 }
 
-export { initDom };
+export { initDom, populateGameboards };

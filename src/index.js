@@ -1,4 +1,4 @@
 import "./styles.css";
-import { initDom } from "./dom-manip/dom-manip";
+import { initGame } from "./game-logic/game-logic";
 
-initDom();
+initGame();
