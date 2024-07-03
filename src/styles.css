@@ -42,3 +42,6 @@ body {
 .box:hover {
   background-color: #a7d0e8;
 }
+.ship {
+  background-color: black;
+}
