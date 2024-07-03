@@ -8,7 +8,7 @@ function populateBoard() {
   console.log("in populateboard");
   const boards = document.querySelectorAll(".board");
 
-  boards.forEach((board) => {
+  boards.forEach((board, index) => {
     for (let i = 0; i < 10; i++) {
       const rowIndex = i;
       for (let j = 0; j < 10; j++) {
@@ -17,11 +17,34 @@ function populateBoard() {
 
         div.dataset.row = rowIndex;
         div.dataset.column = columnIndex;
-
+        div.dataset.player = index;
         board.appendChild(div);
+
+        div.addEventListener("click", (e) => {
+          if (hitShip(e.target.dataset)) {
+            // DO SOMETHING IF ALL SHIP SUNK
+          } else {
+            populateGameboards(getPlayers());
+          }
+        });
       }
     }
   });
+}
+
+function hitShip(player) {
+  const playerDataset = { ...player };
+
+  const currentPlayer = getPlayers()[parseInt(playerDataset.player)];
+  const playerGameboard = currentPlayer.player.gameboard;
+
+  const x_coord = parseInt(playerDataset.row);
+  const y_coord = parseInt(playerDataset.column);
+  const coord = [x_coord, y_coord];
+  console.log(coord);
+  playerGameboard.receiveAttack(coord);
+  console.log(playerGameboard);
+  return playerGameboard.hasAllShipsBeenSunk();
 }
 
 function populateGameboards(players) {
@@ -31,30 +54,54 @@ function populateGameboards(players) {
   });
 }
 function renderPlayerBoard(player, board) {
-  console.log("in render");
+  // if ai dont render
   if (player.type === "ai") return;
 
   const currentPlayer = player;
   const playerBoardsChildNodes = Array.from(board);
 
+  //render currentcoords
   currentPlayer.gameboard.currentCoords.forEach((coord) => {
     const [x_coord, y_coord] = coord;
-    console.log(x_coord, y_coord);
     const div = playerBoardsChildNodes.find((div) => {
       const row = parseInt(div.dataset.row);
       const column = parseInt(div.dataset.column);
       return row === x_coord && column === y_coord;
     });
-
     div.classList.add("ship");
+  });
+
+  //render successful hitshots
+  currentPlayer.gameboard.hitShots.forEach((coord) => {
+    const [x_coord, y_coord] = coord;
+    const div = playerBoardsChildNodes.find((div) => {
+      const row = parseInt(div.dataset.row);
+      const column = parseInt(div.dataset.column);
+      return row === x_coord && column === y_coord;
+    });
+    div.classList.add("hit");
+  });
+
+  //render missedshots
+  currentPlayer.gameboard.missedShots.forEach((coord) => {
+    const [x_coord, y_coord] = coord;
+    const div = playerBoardsChildNodes.find((div) => {
+      const row = parseInt(div.dataset.row);
+      const column = parseInt(div.dataset.column);
+      return row === x_coord && column === y_coord;
+    });
+    div.classList.add("missed");
   });
 }
 
 function renderPlayerNames(players) {
   const player1Div = document.querySelector(".player-1-text");
-  console.log(players);
-  player1Div.appendChild(createHeading(`${players[0].player.type}`));
   const player2Div = document.querySelector(".player-2-text");
+
+  player1Div.textContent = "";
+  player2Div.textContent = "";
+
+  player1Div.appendChild(createHeading(`${players[0].player.type}`));
   player2Div.appendChild(createHeading(`${players[1].player.type}`));
 }
 

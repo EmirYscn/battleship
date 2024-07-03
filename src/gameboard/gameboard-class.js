@@ -4,6 +4,7 @@ class Gameboard {
   constructor() {
     this.ships = [];
     this.missedShots = [];
+    this.hitShots = [];
     this.currentCoords = [];
     this._generateShipMap();
   }
@@ -13,6 +14,12 @@ class Gameboard {
     if (ship && !ship.sunk) {
       // if ship found and not sunk yet, call hit() on it
       ship.hit();
+      //then remove from currentCoords and move to hitShots
+      this.hitShots.push(coordinate);
+      this.currentCoords.splice(
+        findIndexofItemInArray(this.currentCoords, coordinate),
+        1
+      );
       // if not ship not found, push coordinate to missedShots array
     } else {
       this.missedShots.push(coordinate);
@@ -127,6 +134,16 @@ class Gameboard {
 function arraysEqual(arr1, arr2) {
   if (arr1.length !== arr2.length) return false;
   return arr1.every((element, index) => element === arr2[index]);
+}
+
+function findIndexofItemInArray(array, item) {
+  for (var i = 0; i < array.length; i++) {
+    // This if statement depends on the format of your array
+    if (array[i][0] == item[0] && array[i][1] == item[1]) {
+      return i; // Found it
+    }
+  }
+  return -1; // Not found
 }
 
 module.exports = Gameboard;

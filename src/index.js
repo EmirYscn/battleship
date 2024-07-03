@@ -1,4 +1,4 @@
 import "./styles.css";
 import { initGame } from "./game-logic/game-logic";
 
-initGame("human", "ai");
+initGame("player1", "player2");

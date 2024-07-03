@@ -40,7 +40,7 @@ body {
 }
 .box {
   height: 100%;
-  cursor: pointer;
+  cursor: crosshair;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,6 +51,19 @@ body {
 }
 .ship {
   background-color: black;
+}
+.ship.hit {
+  background-color: green;
+  cursor: default;
+}
+
+.ship.sunk {
+  /* todo */
+}
+
+.missed {
+  cursor: default;
+  background-color: red;
 }
 
 .player-1-text,
