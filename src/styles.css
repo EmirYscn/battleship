@@ -13,11 +13,18 @@ body {
 }
 
 .boards {
-  border: 1px solid white;
   width: 80%;
   height: 60%;
   display: flex;
   justify-content: space-around;
+  align-items: center;
+}
+.player-1-container,
+.player-2-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  justify-content: center;
   align-items: center;
 }
 
@@ -44,4 +51,10 @@ body {
 }
 .ship {
   background-color: black;
+}
+
+.player-1-text,
+.player-2-text {
+  color: white;
+  text-transform: uppercase;
 }

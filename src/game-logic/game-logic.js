@@ -19,6 +19,9 @@ function initPlayers(player1Type, player2Type) {
 function createPlayer(playerType) {
   return new Player(playerType);
 }
+function getPlayers() {
+  return players;
+}
 
 function initGame(player1Type, player2Type) {
   initDom();
@@ -26,4 +29,4 @@ function initGame(player1Type, player2Type) {
   populateGameboards(players);
 }
 
-export { initGame };
+export { initGame, getPlayers };

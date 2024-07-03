@@ -1,3 +1,5 @@
+import { getPlayers } from "../game-logic/game-logic";
+
 function initDom() {
   populateBoard();
 }
@@ -23,6 +25,7 @@ function populateBoard() {
 }
 
 function populateGameboards(players) {
+  renderPlayerNames(players);
   players.forEach((player) => {
     renderPlayerBoard(player.player, player.board);
   });
@@ -45,6 +48,21 @@ function renderPlayerBoard(player, board) {
 
     div.classList.add("ship");
   });
+}
+
+function renderPlayerNames(players) {
+  const player1Div = document.querySelector(".player-1-text");
+  console.log(players);
+  player1Div.appendChild(createHeading(`${players[0].player.type}`));
+  const player2Div = document.querySelector(".player-2-text");
+  player2Div.appendChild(createHeading(`${players[1].player.type}`));
+}
+
+function createHeading(text) {
+  const h1 = document.createElement("h1");
+  h1.textContent = text;
+
+  return h1;
 }
 
 function createDiv(className) {
