@@ -1,4 +1,8 @@
 import "./styles.css";
 import { initGame } from "./game-logic/game-logic";
 
-initGame("player1", "player2");
+// initGame("human", "human");
+initGame(
+  { type: "human", name: "player-1" },
+  { type: "human", name: "player-2" }
+);

@@ -8,8 +8,12 @@ body {
   height: 100vh;
   background: linear-gradient(90deg, #1a78ae, #431dd9);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 2em;
+  color: white;
+  text-transform: uppercase;
 }
 
 .boards {
@@ -55,6 +59,8 @@ body {
 .ship.hit {
   background-color: green;
   cursor: default;
+  font-size: 2em;
+  border: 2px solid red;
 }
 
 .ship.sunk {
@@ -63,11 +69,16 @@ body {
 
 .missed {
   cursor: default;
-  background-color: red;
+  background-color: rgb(105, 107, 105);
+  opacity: 0.5;
 }
 
 .player-1-text,
 .player-2-text {
   color: white;
   text-transform: uppercase;
+}
+
+.half-opacity {
+  opacity: 0.5;
 }

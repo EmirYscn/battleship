@@ -20,9 +20,11 @@ class Gameboard {
         findIndexofItemInArray(this.currentCoords, coordinate),
         1
       );
+      return true;
       // if not ship not found, push coordinate to missedShots array
     } else {
       this.missedShots.push(coordinate);
+      return false;
     }
   }
 
