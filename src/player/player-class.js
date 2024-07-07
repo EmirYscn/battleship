@@ -1,4 +1,4 @@
-const Gameboard = require("../gameboard/gameboard-class");
+import { Gameboard } from "../gameboard/gameboard-class";
 
 class Player {
   constructor(type, name) {

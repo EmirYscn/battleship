@@ -1,65 +1,103 @@
-// const gameLogicInit = require("./game-logic");
+// game-logic.test.js
+import {
+  initGame,
+  getPlayers,
+  getGameState,
+  changeCurrentPlayer,
+  getCurrentPlayer,
+  getOpposingPlayer,
+} from "../game-logic/game-logic";
+import { Player } from "../player/player-class";
+import { initDom, populateGameboards } from "../dom-manip/dom-manip";
 
-// describe("Gameboard Class", () => {
-//   beforeEach(() => {
-//     init();
-//   });
+// Mock dependencies
+jest.mock("../player/player-class", () => {
+  return {
+    Player: jest.fn().mockImplementation((type, name) => {
+      return { type, name };
+    }),
+  };
+});
 
-//   test("should initialize ships, missedShots, and currentCoords arrays", () => {
-//     expect(gameboard.ships).toBeInstanceOf(Array);
-//     expect(gameboard.ships).toHaveLength(10); // 4 + 3 + 2 + 1 = 10 ships
-//     expect(gameboard.missedShots).toBeInstanceOf(Array);
-//     expect(gameboard.missedShots).toHaveLength(0);
-//     expect(gameboard.currentCoords).toBeInstanceOf(Array);
-//     expect(gameboard.currentCoords.length).toBeGreaterThan(0); // Since ships are initialized, this will have some coords
-//   });
+jest.mock("../dom-manip/dom-manip", () => {
+  return {
+    initDom: jest.fn(),
+    populateGameboards: jest.fn(),
+  };
+});
 
-//   test("should generate ships with correct lengths", () => {
-//     const shipLengths = gameboard.ships.map((ship) => ship.ship.length);
-//     const expectedLengths = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
-//     expect(shipLengths.sort()).toEqual(expectedLengths.sort());
-//   });
+describe("Game Logic", () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div class="current-player-header"></div>
+      <div class="boards">
+        <div class="player-1-container">
+          <div class="player-1-text"></div>
+          <div class="board player-1-board"></div>
+        </div>
+        <div class="player-2-container">
+          <div class="player-2-text"></div>
+          <div class="board player-2-board"></div>
+        </div>
+      </div>
+    `;
+  });
 
-//   test("should generate coordinates within valid range and without overlap", () => {
-//     const coords = gameboard.ships.flatMap((ship) => ship.coords);
-//     coords.forEach(([x, y]) => {
-//       expect(x).toBeGreaterThanOrEqual(0);
-//       expect(x).toBeLessThan(10);
-//       expect(y).toBeGreaterThanOrEqual(0);
-//       expect(y).toBeLessThan(10);
-//     });
+  it("should initialize players correctly", () => {
+    const player1 = { type: "human", name: "Player 1" };
+    const player2 = { type: "ai", name: "Player 2" };
 
-//     const uniqueCoords = new Set(coords.map((coord) => coord.toString()));
-//     expect(uniqueCoords.size).toBe(coords.length);
-//   });
+    initGame(player1, player2);
 
-//   test("_generateRandomNumber should return a number between 0 and 9", () => {
-//     for (let i = 0; i < 100; i++) {
-//       const num = gameboard._generateRandomNumber();
-//       expect(num).toBeGreaterThanOrEqual(0);
-//       expect(num).toBeLessThan(10);
-//     }
-//   });
+    const players = getPlayers();
+    expect(players).toHaveLength(2);
+    expect(players[0].player.type).toBe("human");
+    expect(players[0].player.name).toBe("Player 1");
+    expect(players[1].player.type).toBe("ai");
+    expect(players[1].player.name).toBe("Player 2");
+  });
 
-//   test("_predictCollision should correctly identify collisions", () => {
-//     // Add a ship to currentCoords for testing
-//     gameboard.currentCoords = [];
-//     gameboard.currentCoords.push([1, 1], [1, 2], [1, 3]);
+  it("should initialize game state correctly", () => {
+    const player1 = { type: "human", name: "Player 1" };
+    const player2 = { type: "ai", name: "Player 2" };
 
-//     expect(gameboard._predictCollision("x", 1, 1, 3)).toBe(true); // Collision
-//     expect(gameboard._predictCollision("y", 1, 1, 3)).toBe(true); // Collision
-//     expect(gameboard._predictCollision("x", 5, 5, 3)).toBe(false); // No Collision
-//   });
+    initGame(player1, player2);
 
-//   test("_isValidCoord should return true for valid coordinates and false for invalid ones", () => {
-//     expect(gameboard._isValidCoord(5, 5, 3, true)).toBe(true);
-//     expect(gameboard._isValidCoord(8, 5, 3, true)).toBe(false);
-//     expect(gameboard._isValidCoord(5, 5, 3, false)).toBe(true);
-//     expect(gameboard._isValidCoord(5, 8, 3, false)).toBe(false);
-//   });
-// });
+    const gameState = getGameState();
+    expect(gameState.currentPlayer).toEqual(getPlayers()[0].player);
+    expect(gameState.isFinished).toBe(false);
+  });
 
-// function arraysEqual(arr1, arr2) {
-//   if (arr1.length !== arr2.length) return false;
-//   return arr1.every((element, index) => element === arr2[index]);
-// }
+  it("should change the current player correctly", () => {
+    const player1 = { type: "human", name: "Player 1" };
+    const player2 = { type: "ai", name: "Player 2" };
+
+    initGame(player1, player2);
+
+    const initialPlayer = getCurrentPlayer();
+    changeCurrentPlayer();
+    const newPlayer = getCurrentPlayer();
+    expect(newPlayer).not.toEqual(initialPlayer);
+  });
+
+  it("should get the opposing player correctly", () => {
+    const player1 = { type: "human", name: "Player 1" };
+    const player2 = { type: "ai", name: "Player 2" };
+
+    initGame(player1, player2);
+
+    const currentPlayer = getCurrentPlayer();
+    const opposingPlayer = getOpposingPlayer();
+    expect(opposingPlayer).not.toEqual(currentPlayer);
+  });
+
+  it("should call initDom and populateGameboards when initializing the game", () => {
+    const player1 = { type: "human", name: "Player 1" };
+    const player2 = { type: "ai", name: "Player 2" };
+
+    initGame(player1, player2);
+
+    expect(initDom).toHaveBeenCalled();
+    expect(populateGameboards).toHaveBeenCalled();
+  });
+});

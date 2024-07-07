@@ -1,4 +1,4 @@
-const Ship = require("./ship-class"); // Adjust the path as needed
+import { Ship } from "./ship-class";
 
 describe("Ship Class", () => {
   let ship;

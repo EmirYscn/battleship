@@ -144,7 +144,6 @@ function renderPlayerNames(players) {
   player1Div.textContent = "";
   player2Div.textContent = "";
 
-  console.log(players);
   player1Div.appendChild(createHeading(`${players[0].player.name}`, "h2"));
   player2Div.appendChild(createHeading(`${players[1].player.name}`, "h2"));
 }
