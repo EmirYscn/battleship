@@ -135,17 +135,17 @@ function renderCurrentPlayerDisplay() {
 }
 
 function renderPlayerBoard(player) {
-  // if player is something other than human dont render
-  if (player.type === "ai") return;
-
   const currentPlayer = player.player;
   const playerBoard = Array.from(player.board);
 
   //render currentcoords
-  currentPlayer.gameboard.currentCoords.forEach((coord) => {
-    const div = findCorrespondingDiv(coord, playerBoard);
-    div.classList.add("ship");
-  });
+  // if player is ai dont render currentcoords
+  if (player.player.type !== "ai") {
+    currentPlayer.gameboard.currentCoords.forEach((coord) => {
+      const div = findCorrespondingDiv(coord, playerBoard);
+      div.classList.add("ship");
+    });
+  }
 
   //render successful hitshots
   currentPlayer.gameboard.hitShots.forEach((coord) => {
