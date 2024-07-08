@@ -1049,7 +1049,7 @@ describe("Gameboard Class", () => {
     const right = gameboard._getRightCoords([[2, 3]], 1, true);
     expect(right).toEqual([[3, 3]]);
   });
-  test.only("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 1 (1)", () => {
+  test("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 1 (1)", () => {
     const right = gameboard._getRightCoords([[0, 0]], 1, false);
     expect(right).toEqual([[1, 0]]);
   });
@@ -1103,7 +1103,7 @@ describe("Gameboard Class", () => {
     );
     expect(right).toEqual([[2, 0]]);
   });
-  test.only("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 2 (1) (orientationX is false)", () => {
+  test("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 2 (1) (orientationX is false)", () => {
     const right = gameboard._getRightCoords(
       [
         [0, 0],
@@ -1119,7 +1119,7 @@ describe("Gameboard Class", () => {
       ].reverse()
     );
   });
-  test.only("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 2 (2) (orientationX is true)", () => {
+  test("getRight function returns expected coord array with edge case of coord being at the corner of board with length of 2 (2) (orientationX is true)", () => {
     const right = gameboard._getRightCoords(
       [
         [0, 0],
@@ -1132,6 +1132,443 @@ describe("Gameboard Class", () => {
       [
         [1, 0],
         [1, 1],
+      ].reverse()
+    );
+  });
+  // getLeft
+  test("getLeft function returns expected coord array with optimal coord with length of 1", () => {
+    const left = gameboard._getLeftCoords([[2, 3]], 1, true);
+    expect(left).toEqual([[1, 3]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 1 (1)", () => {
+    const left = gameboard._getLeftCoords([[0, 0]], 1, false);
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 1 (2)", () => {
+    const left = gameboard._getLeftCoords([[0, 9]], 1, false);
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 1 (3)", () => {
+    const left = gameboard._getLeftCoords([[9, 0]], 1, false);
+    expect(left).toEqual([[8, 0]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 1 (4)", () => {
+    const left = gameboard._getLeftCoords([[9, 9]], 1, false);
+    expect(left).toEqual([[8, 9]]);
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 2 (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [3, 3],
+      ],
+      2,
+      true
+    );
+    expect(left).toEqual([[1, 3]]);
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 2 (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [2, 4],
+      ],
+      2,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [1, 3],
+        [1, 4],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (1) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [1, 0],
+      ],
+      2,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (1) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [0, 1],
+      ],
+      2,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (2) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 9],
+        [1, 9],
+      ],
+      2,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (2) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 8],
+        [0, 9],
+      ],
+      2,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (3) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [8, 0],
+        [9, 0],
+      ],
+      2,
+      true
+    );
+    expect(left).toEqual([[7, 0]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (3) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 0],
+        [9, 1],
+      ],
+      2,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 0],
+        [8, 1],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (4) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [8, 9],
+        [9, 9],
+      ],
+      2,
+      true
+    );
+    expect(left).toEqual([[7, 9]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 2 (4) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 8],
+        [9, 9],
+      ],
+      2,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 8],
+        [8, 9],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 3 (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [3, 3],
+        [4, 3],
+      ],
+      3,
+      true
+    );
+    expect(left).toEqual([[1, 3]]);
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 3 (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [2, 4],
+        [2, 5],
+      ],
+      3,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [1, 3],
+        [1, 4],
+        [1, 5],
+      ].reverse()
+    );
+  });
+
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (1) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+      ],
+      3,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (1) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+      ],
+      3,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (2) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 9],
+        [1, 9],
+        [2, 9],
+      ],
+      3,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (2) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 7],
+        [0, 8],
+        [0, 9],
+      ],
+      3,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (3) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [7, 0],
+        [8, 0],
+        [9, 0],
+      ],
+      3,
+      true
+    );
+    expect(left).toEqual([[6, 0]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (3) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 0],
+        [9, 1],
+        [9, 2],
+      ],
+      3,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 0],
+        [8, 1],
+        [8, 2],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (4) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [7, 9],
+        [8, 9],
+        [9, 9],
+      ],
+      3,
+      true
+    );
+    expect(left).toEqual([[6, 9]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 3 (4) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 7],
+        [9, 8],
+        [9, 9],
+      ],
+      3,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 7],
+        [8, 8],
+        [8, 9],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 4 (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [3, 3],
+        [4, 3],
+        [5, 3],
+      ],
+      4,
+      true
+    );
+    expect(left).toEqual([[1, 3]]);
+  });
+  test("getLeft function returns expected coord array with optimal coord with length of 4 (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [2, 3],
+        [2, 4],
+        [2, 5],
+        [2, 6],
+      ],
+      4,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [1, 6],
+      ].reverse()
+    );
+  });
+
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (1) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+      ],
+      4,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (1) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+      ],
+      4,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (2) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 9],
+        [1, 9],
+        [2, 9],
+        [3, 9],
+      ],
+      4,
+      true
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (2) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [0, 6],
+        [0, 7],
+        [0, 8],
+        [0, 9],
+      ],
+      4,
+      false
+    );
+    expect(left).toEqual([]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (3) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [6, 0],
+        [7, 0],
+        [8, 0],
+        [9, 0],
+      ],
+      4,
+      true
+    );
+    expect(left).toEqual([[5, 0]]);
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (3) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 0],
+        [9, 1],
+        [9, 2],
+        [9, 3],
+      ],
+      4,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 0],
+        [8, 1],
+        [8, 2],
+        [8, 3],
+      ].reverse()
+    );
+  });
+  test("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (4) (orientationX is true)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [6, 9],
+        [7, 9],
+        [8, 9],
+        [9, 9],
+      ],
+      4,
+      true
+    );
+    expect(left).toEqual([[5, 9]]);
+  });
+  test.only("getLeft function returns expected coord array with edge case of coord being at the corner of board with length of 4 (4) (orientationX is false)", () => {
+    const left = gameboard._getLeftCoords(
+      [
+        [9, 6],
+        [9, 7],
+        [9, 8],
+        [9, 9],
+      ],
+      4,
+      false
+    );
+    expect(left).toEqual(
+      [
+        [8, 6],
+        [8, 7],
+        [8, 8],
+        [8, 9],
       ].reverse()
     );
   });

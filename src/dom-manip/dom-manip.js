@@ -4,6 +4,8 @@ import {
   changeCurrentPlayer,
   getCurrentPlayer,
   getOpposingPlayer,
+  getCurrentPlayerDomBoard,
+  getNonCurrentPlayerDomBoard,
 } from "../game-logic/game-logic";
 
 function initDom() {
@@ -23,12 +25,38 @@ function populateBoard() {
         div.dataset.row = rowIndex;
         div.dataset.column = columnIndex;
         div.dataset.player = index;
+
+        // generateCoordNums([rowIndex, columnIndex]);
+        if (rowIndex === 0) {
+          const span = createSpan("coord-num-up", columnIndex);
+          div.appendChild(span);
+        }
+        if (columnIndex === 0) {
+          const span = createSpan("coord-num-left", rowIndex);
+          div.appendChild(span);
+        }
         board.appendChild(div);
 
         div.addEventListener("click", handleDivClick);
       }
     }
   });
+}
+function generateCoordNums(div) {
+  const divRow = parseInt(div.dataset.row);
+  const divColumn = parseInt(div.dataset.column);
+  if (divRow === 0 && divColumn === 0) {
+    const span1 = createSpan("coord-num-up", divColumn);
+    div.appendChild(span1);
+    const span2 = createSpan("coord-num-left", divRow);
+    div.appendChild(span2);
+  } else if (divRow === 0) {
+    const span = createSpan("coord-num-up", divColumn);
+    div.appendChild(span);
+  } else if (divColumn === 0) {
+    const span = createSpan("coord-num-left", divRow);
+    div.appendChild(span);
+  }
 }
 
 function handleDivClick(e) {
@@ -47,7 +75,7 @@ function handleDivClick(e) {
   } else {
     // change the current player
     changeCurrentPlayer();
-    renderCurrentPlayerDisplay();
+    // renderCurrentPlayerDisplay();
   }
 
   populateGameboards();
@@ -60,14 +88,15 @@ function hitShip(player) {
   const currentPlayer = getPlayers()[parseInt(playerDataset.player)];
   const playerGameboard = currentPlayer.player.gameboard;
 
-  const x_coord = parseInt(playerDataset.row);
-  const y_coord = parseInt(playerDataset.column);
+  const x_coord = parseInt(playerDataset.column);
+  const y_coord = parseInt(playerDataset.row);
   const coord = [x_coord, y_coord];
   return playerGameboard.receiveAttack(coord);
 }
 
 function populateGameboards() {
   const players = getPlayers();
+  console.log(players);
   renderPlayerNames(players);
   renderCurrentPlayerText(getCurrentPlayer());
   renderCurrentPlayerDisplay();
@@ -91,6 +120,18 @@ function renderCurrentPlayerDisplay() {
     `.${currentPlayer.name}-board`
   );
   currentPlayerBoardDiv.classList.add("half-opacity");
+
+  // set players board eventListeners
+  const nonCurrentPlayerBoard = [...getNonCurrentPlayerDomBoard()];
+  const currentPlayerBoard = [...getCurrentPlayerDomBoard()];
+  // set current players board unclickable
+  currentPlayerBoard.forEach((div) => {
+    div.removeEventListener("click", handleDivClick);
+  });
+  // set non current players board clickable
+  nonCurrentPlayerBoard.forEach((div) => {
+    div.addEventListener("click", handleDivClick);
+  });
 }
 
 function renderPlayerBoard(player) {
@@ -109,8 +150,10 @@ function renderPlayerBoard(player) {
   //render successful hitshots
   currentPlayer.gameboard.hitShots.forEach((coord) => {
     const div = findCorrespondingDiv(coord, playerBoard);
+
     div.textContent = "❌";
     div.classList.add("hit");
+    generateCoordNums(div);
     // prevent clicking the same coord again
     div.removeEventListener("click", handleDivClick);
   });
@@ -120,9 +163,19 @@ function renderPlayerBoard(player) {
     const div = findCorrespondingDiv(coord, playerBoard);
     div.textContent = "🔘";
     div.classList.add("missed");
+    generateCoordNums(div);
     // prevent clicking the same coord again
     div.removeEventListener("click", handleDivClick);
   });
+
+  // //render surroundingCoords
+  // currentPlayer.gameboard.surroundingCoords.forEach((coord) => {
+  //   const div = findCorrespondingDiv(coord, playerBoard);
+  //   div.textContent = "🔘";
+  //   div.classList.add("missed");
+  //   // prevent clicking the same coord again
+  //   div.removeEventListener("click", handleDivClick);
+  // });
 }
 
 function findCorrespondingDiv(coord, board) {
@@ -131,7 +184,7 @@ function findCorrespondingDiv(coord, board) {
   const div = board.find((div) => {
     const row = parseInt(div.dataset.row);
     const column = parseInt(div.dataset.column);
-    return row === x_coord && column === y_coord;
+    return row === y_coord && column === x_coord;
   });
 
   return div;
@@ -161,6 +214,14 @@ function createHeading(text, heading) {
   header.textContent = text;
 
   return header;
+}
+
+function createSpan(className, text) {
+  const span = document.createElement("span");
+  span.textContent = text;
+  span.classList.add(className);
+
+  return span;
 }
 
 function createDiv(className) {

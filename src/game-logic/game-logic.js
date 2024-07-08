@@ -23,7 +23,11 @@ function initPlayers(player1Type, player2Type, player1Name, player2Name) {
   ];
 }
 function initGameState() {
-  gameState = { currentPlayer: players[0].player, isFinished: false };
+  gameState = {
+    currentPlayer: players[0].player,
+    currentPlayerBoard: players[0].board,
+    isFinished: false,
+  };
 }
 
 function createPlayer(playerType, playerName) {
@@ -38,6 +42,14 @@ function getGameState() {
 function getCurrentPlayer() {
   return gameState.currentPlayer;
 }
+function getCurrentPlayerDomBoard() {
+  return gameState.currentPlayerBoard;
+}
+function getNonCurrentPlayerDomBoard() {
+  return gameState.currentPlayer === players[0].player
+    ? players[1].board
+    : players[0].board;
+}
 function getOpposingPlayer() {
   return gameState.currentPlayer === players[0].player
     ? players[1].player
@@ -48,6 +60,11 @@ function changeCurrentPlayer() {
     gameState.currentPlayer === players[0].player
       ? (gameState.currentPlayer = players[1].player)
       : (gameState.currentPlayer = players[0].player);
+
+  gameState.currentPlayerBoard =
+    gameState.currentPlayer === players[0].player
+      ? players[0].board
+      : players[1].board;
 }
 
 function initGame(player1, player2) {
@@ -64,4 +81,6 @@ export {
   changeCurrentPlayer,
   getCurrentPlayer,
   getOpposingPlayer,
+  getCurrentPlayerDomBoard,
+  getNonCurrentPlayerDomBoard,
 };

@@ -9,20 +9,17 @@ class Gameboard {
     this.surroundingCoords = [];
     this._generateShipMap();
   }
+
   receiveAttack(coordinate) {
-    // get the ship object with matching coordinate
     const ship = this._getShip(coordinate);
     if (ship && !ship.sunk) {
-      // if ship found and not sunk yet, call hit() on it
       ship.hit();
-      //then remove from currentCoords and move to hitShots
       this.hitShots.push(coordinate);
       this.currentCoords.splice(
         findIndexofItemInArray(this.currentCoords, coordinate),
         1
       );
       return true;
-      // if not ship not found, push coordinate to missedShots array
     } else {
       this.missedShots.push(coordinate);
       return false;
@@ -47,23 +44,25 @@ class Gameboard {
   }
 
   _generateShipMap() {
-    // generate four 1-length ships
-    for (let i = 0; i < 4; i++) {
-      this.ships.push(this._generateShip(1));
-    }
-    // // generate three 2-length ships
-    for (let i = 0; i < 3; i++) {
-      this.ships.push(this._generateShip(2));
-    }
-    // // generate two 3-length ships
+    this.ships.push(this._generateShip(4));
+
     for (let i = 0; i < 2; i++) {
       this.ships.push(this._generateShip(3));
     }
-    // // generate one 4-length ship
-    this.ships.push(this._generateShip(4));
 
-    console.log(this.currentCoords);
-    console.log(this.surroundingCoords);
+    for (let i = 0; i < 3; i++) {
+      this.ships.push(this._generateShip(2));
+    }
+
+    for (let i = 0; i < 4; i++) {
+      this.ships.push(this._generateShip(1));
+    }
+
+    // console.log(this.currentCoords);
+    // console.log(this.surroundingCoords);
+    // this.surroundingCoords = [...new Set(this.surroundingCoords)];
+    this.surroundingCoords = removeDuplicateArrays(this.surroundingCoords);
+    // console.log(this.surroundingCoords);
   }
 
   _generateShip(length, x_coord = null, y_coord = null) {
@@ -73,15 +72,16 @@ class Gameboard {
       ship: new Ship(length),
     };
   }
+
   _generateCoord(length, x_coord = null, y_coord = null) {
-    // set random (x,y) coordinates
     let x = x_coord === null ? this._generateRandomNumber() : x_coord;
     let y = y_coord === null ? this._generateRandomNumber() : y_coord;
-
-    // pick a direction to extend the ship
     const orientationX = Math.random() >= 0.5;
+    let attempts = 0;
+    const maxAttempts = 200;
 
-    while (true) {
+    while (attempts < maxAttempts) {
+      attempts++;
       if (
         this._isValidCoord(x, y, length, orientationX) &&
         !this._predictCollisionWithCurrentCoords(
@@ -103,6 +103,12 @@ class Gameboard {
       y = this._generateRandomNumber();
     }
 
+    if (attempts >= maxAttempts) {
+      throw new Error(
+        `Failed to generate valid coordinates after ${maxAttempts} attempts`
+      );
+    }
+
     const coordArr = [];
     for (let i = 0; i < length; i++) {
       coordArr.push([x, y]);
@@ -113,31 +119,21 @@ class Gameboard {
         y++;
       }
     }
-    // console.log(coordArr);
-    this._getSurroundingCoords(coordArr, length, orientationX).forEach(
-      (element) => {
-        this.surroundingCoords.push(element);
-      }
+
+    this.surroundingCoords.push(
+      ...this._getSurroundingCoords(coordArr, length, orientationX)
     );
-    // this.surroundingCoords.push(
-    //   this._getSurroundingCoords(coordArr, length, orientationX)
-    // );
+
     return coordArr;
   }
 
   _getSurroundingCoords(coord, length, orientationX) {
     const surCoordArray = [];
-
     surCoordArray.push(this._getUpperRowCoords(coord, length, orientationX));
     surCoordArray.push(this._getBottomRowCoords(coord, length, orientationX));
     surCoordArray.push(this._getRightCoords(coord, length, orientationX));
     surCoordArray.push(this._getLeftCoords(coord, length, orientationX));
 
-    // console.log(`current coord with length: ${length}: `, coord);
-    // console.log(
-    //   `surrounding coords with length:${length} `,
-    //   surCoordArray.flat()
-    // );
     return surCoordArray.flat();
   }
 
@@ -158,6 +154,7 @@ class Gameboard {
 
     return upperRow;
   }
+
   _getBottomRowCoords(coords, length, orientationX) {
     const bottomRow = [];
     let [x_coord, y_coord] = coords[length - 1];
@@ -174,9 +171,9 @@ class Gameboard {
     }
     return bottomRow;
   }
+
   _getRightCoords(coords, length, orientationX) {
     const right = [];
-
     let [x_coord, y_coord] = coords[length - 1];
     x_coord++;
 
@@ -190,10 +187,16 @@ class Gameboard {
 
     return right;
   }
+
   _getLeftCoords(coords, length, orientationX) {
     const left = [];
-
-    let [x_coord, y_coord] = coords[0];
+    let x_coord;
+    let y_coord;
+    if (orientationX) {
+      [x_coord, y_coord] = coords[0];
+    } else {
+      [x_coord, y_coord] = coords[length - 1];
+    }
     x_coord--;
 
     let leftLength = orientationX ? 1 : length;
@@ -214,7 +217,7 @@ class Gameboard {
       if (oriantation === "x") x++;
       else y++;
     }
-    // [6,9] [7,9] [8,9] [9,9]
+
     for (const array of tempArr) {
       if (this._hasCoordCollision(array, this.currentCoords)) {
         return true;
@@ -222,6 +225,7 @@ class Gameboard {
     }
     return false;
   }
+
   _predictCollisionWithSurroundingCoords(oriantation, x, y, length) {
     const tempArr = [];
     for (let i = 0; i < length; i++) {
@@ -229,7 +233,7 @@ class Gameboard {
       if (oriantation === "x") x++;
       else y++;
     }
-    // [6,9] [7,9] [8,9] [9,9]
+
     for (const array of tempArr) {
       if (this._hasCoordCollision(array, this.surroundingCoords)) {
         return true;
@@ -250,14 +254,15 @@ class Gameboard {
       return y + length <= 10;
     }
   }
+
   _generateRandomNumber() {
     return Math.floor(Math.random() * 10);
   }
+
   _hasCoordCollision(coord, otherCoord) {
     return otherCoord.some((existingCoord) =>
       arraysEqual(existingCoord, coord)
     );
-    // also check with surrounding coord array
   }
 }
 
@@ -267,13 +272,16 @@ function arraysEqual(arr1, arr2) {
 }
 
 function findIndexofItemInArray(array, item) {
-  for (var i = 0; i < array.length; i++) {
-    // This if statement depends on the format of your array
-    if (array[i][0] == item[0] && array[i][1] == item[1]) {
-      return i; // Found it
+  for (let i = 0; i < array.length; i++) {
+    if (arraysEqual(array[i], item)) {
+      return i;
     }
   }
-  return -1; // Not found
+  return -1;
+}
+function removeDuplicateArrays(arrays) {
+  const uniqueArrays = new Set(arrays.map(JSON.stringify));
+  return Array.from(uniqueArrays).map(JSON.parse);
 }
 
 export { Gameboard };
