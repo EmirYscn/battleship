@@ -1,11 +1,12 @@
 import {
   getPlayers,
-  getGameState,
   changeCurrentPlayer,
   getCurrentPlayer,
   getOpposingPlayer,
   getCurrentPlayerDomBoard,
   getNonCurrentPlayerDomBoard,
+  getGameState,
+  setGameState,
 } from "../game-logic/game-logic";
 
 function initDom() {
@@ -63,23 +64,42 @@ function handleDivClick(e) {
   // if hit ship is succesful
   if (hitShip(e.target.dataset)) {
     // continue playing with the current player
-    const currentPlayer =
-      getPlayers()[parseInt(e.target.dataset.player)].player;
-    // check if all ships sunk
-    if (currentPlayer.gameboard.hasAllShipsBeenSunk()) {
+    const currentPlayer = getPlayers()[parseInt(e.target.dataset.player)];
+    // check if any ship is sunk
+    const x_coord = parseInt(e.target.dataset.column);
+    const y_coord = parseInt(e.target.dataset.row);
+
+    const currentShip = currentPlayer.player.gameboard._getShip([
+      x_coord,
+      y_coord,
+    ]);
+    if (currentShip.sunk) {
+      const surroundingCoords =
+        currentPlayer.player.gameboard._getShipSurroundingCoords([
+          x_coord,
+          y_coord,
+        ]);
+      currentPlayer.player.gameboard.surroundingShots.push(
+        ...surroundingCoords
+      );
+      // renderGameboardData(currentPlayer, surroundingCoords, "▪️", "surround");
+    }
+    if (currentPlayer.player.gameboard.hasAllShipsBeenSunk()) {
+      // check if all ships sunk
       // display winning player
       // displayWinner()
       console.log("winner is", getCurrentPlayer());
+      setEndGameState();
+      return;
     }
     // if hit ship is not successful
   } else {
     // change the current player
     changeCurrentPlayer();
-    // renderCurrentPlayerDisplay();
+    renderHeaderInfo(getCurrentPlayer(), "is attacking...");
   }
 
   populateGameboards();
-  renderCurrentPlayerText(getCurrentPlayer());
 }
 
 function hitShip(player) {
@@ -98,7 +118,7 @@ function populateGameboards() {
   const players = getPlayers();
   console.log(players);
   renderPlayerNames(players);
-  renderCurrentPlayerText(getCurrentPlayer());
+  renderHeaderInfo(getCurrentPlayer(), "is attacking...");
   renderCurrentPlayerDisplay();
   players.forEach((player) => {
     renderPlayerBoard(player);
@@ -115,67 +135,109 @@ function renderCurrentPlayerDisplay() {
   Player2BoardDiv.classList.remove("half-opacity");
 
   // set current player board opacity
-  const currentPlayer = getCurrentPlayer();
-  const currentPlayerBoardDiv = document.querySelector(
-    `.${currentPlayer.name}-board`
-  );
-  currentPlayerBoardDiv.classList.add("half-opacity");
+  setBoardOpacity();
 
   // set players board eventListeners
   const nonCurrentPlayerBoard = [...getNonCurrentPlayerDomBoard()];
   const currentPlayerBoard = [...getCurrentPlayerDomBoard()];
   // set current players board unclickable
-  currentPlayerBoard.forEach((div) => {
-    div.removeEventListener("click", handleDivClick);
-  });
+  setPlayerBoardEventListener(currentPlayerBoard, true);
   // set non current players board clickable
-  nonCurrentPlayerBoard.forEach((div) => {
-    div.addEventListener("click", handleDivClick);
-  });
+  setPlayerBoardEventListener(nonCurrentPlayerBoard, false);
+}
+function setBoardOpacity(shouldSetBothBoard = false) {
+  const currentPlayer = getCurrentPlayer();
+  const nonCurrentPlayer = getOpposingPlayer();
+  if (shouldSetBothBoard) {
+    const opposinglayerBoardDiv = document.querySelector(
+      `.${nonCurrentPlayer.name}-board`
+    );
+    opposinglayerBoardDiv.classList.add("half-opacity");
+  }
+  const currentPlayerBoardDiv = document.querySelector(
+    `.${currentPlayer.name}-board`
+  );
+  currentPlayerBoardDiv.classList.add("half-opacity");
+}
+function setEndGameState() {
+  populateGameboards();
+  renderHeaderInfo(getCurrentPlayer(), "has won");
+  setGameState("isFinished", true);
+  const nonCurrentPlayerBoard = [...getNonCurrentPlayerDomBoard()];
+  const currentPlayerBoard = [...getCurrentPlayerDomBoard()];
+  console.log(currentPlayerBoard);
+  console.log(nonCurrentPlayerBoard);
+  setPlayerBoardEventListener(currentPlayerBoard, true);
+  setPlayerBoardEventListener(nonCurrentPlayerBoard, true);
+  setBoardOpacity(true);
+}
+function setPlayerBoardEventListener(board, shouldRemoveEventListener) {
+  if (shouldRemoveEventListener) {
+    board.forEach((div) => {
+      div.removeEventListener("click", handleDivClick);
+    });
+  } else {
+    board.forEach((div) => {
+      div.addEventListener("click", handleDivClick);
+    });
+  }
 }
 
 function renderPlayerBoard(player) {
   const currentPlayer = player.player;
-  const playerBoard = Array.from(player.board);
 
   //render currentcoords
   // if player is ai dont render currentcoords
   if (player.player.type !== "ai") {
-    currentPlayer.gameboard.currentCoords.forEach((coord) => {
-      const div = findCorrespondingDiv(coord, playerBoard);
-      div.classList.add("ship");
-    });
+    renderGameboardData(
+      player,
+      currentPlayer.gameboard.currentCoords,
+      "",
+      "ship",
+      false
+    );
   }
 
   //render successful hitshots
-  currentPlayer.gameboard.hitShots.forEach((coord) => {
-    const div = findCorrespondingDiv(coord, playerBoard);
-
-    div.textContent = "❌";
-    div.classList.add("hit");
-    generateCoordNums(div);
-    // prevent clicking the same coord again
-    div.removeEventListener("click", handleDivClick);
-  });
+  renderGameboardData(player, currentPlayer.gameboard.hitShots, "❌", "hit");
 
   //render missedshots
-  currentPlayer.gameboard.missedShots.forEach((coord) => {
+  renderGameboardData(
+    player,
+    currentPlayer.gameboard.missedShots,
+    "▪️",
+    "missed"
+  );
+
+  // render surrounding shots
+  renderGameboardData(
+    player,
+    currentPlayer.gameboard.surroundingShots,
+    "▪️",
+    "surround"
+  );
+}
+
+function renderGameboardData(
+  player,
+  data,
+  text,
+  className,
+  shouldRemoveEventListener = true
+) {
+  const playerBoard = Array.from(player.board);
+
+  data.forEach((coord) => {
     const div = findCorrespondingDiv(coord, playerBoard);
-    div.textContent = "🔘";
-    div.classList.add("missed");
+
+    div.textContent = text;
+    div.classList.add(className);
     generateCoordNums(div);
     // prevent clicking the same coord again
-    div.removeEventListener("click", handleDivClick);
+    if (shouldRemoveEventListener) {
+      div.removeEventListener("click", handleDivClick);
+    }
   });
-
-  // //render surroundingCoords
-  // currentPlayer.gameboard.surroundingCoords.forEach((coord) => {
-  //   const div = findCorrespondingDiv(coord, playerBoard);
-  //   div.textContent = "🔘";
-  //   div.classList.add("missed");
-  //   // prevent clicking the same coord again
-  //   div.removeEventListener("click", handleDivClick);
-  // });
 }
 
 function findCorrespondingDiv(coord, board) {
@@ -201,10 +263,10 @@ function renderPlayerNames(players) {
   player2Div.appendChild(createHeading(`${players[1].player.name}`, "h2"));
 }
 
-function renderCurrentPlayerText(player) {
+function renderHeaderInfo(player, text) {
   const currentPlayerHeader = document.querySelector(".current-player-header");
   currentPlayerHeader.innerHTML = "";
-  const header = createHeading(`${player.name} is attacking...`, "h1");
+  const header = createHeading(`${player.name} ${text}`, "h1");
 
   currentPlayerHeader.appendChild(header);
 }

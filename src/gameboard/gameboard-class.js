@@ -7,6 +7,7 @@ class Gameboard {
     this.hitShots = [];
     this.currentCoords = [];
     this.surroundingCoords = [];
+    this.surroundingShots = [];
     this._generateShipMap();
   }
 
@@ -42,6 +43,16 @@ class Gameboard {
     }
     return null;
   }
+  _getShipSurroundingCoords(coordinate) {
+    for (const ship of this.ships) {
+      for (const coord of ship.coords) {
+        if (arraysEqual(coord, coordinate)) {
+          return ship.surroundingCoords;
+        }
+      }
+    }
+    return null;
+  }
 
   _generateShipMap() {
     this.ships.push(this._generateShip(4));
@@ -63,12 +74,18 @@ class Gameboard {
     // this.surroundingCoords = [...new Set(this.surroundingCoords)];
     this.surroundingCoords = removeDuplicateArrays(this.surroundingCoords);
     // console.log(this.surroundingCoords);
+    console.log(this.ships);
   }
 
   _generateShip(length, x_coord = null, y_coord = null) {
-    const coords = this._generateCoord(length, x_coord, y_coord);
+    const { coords, surroundingCoords } = this._generateCoord(
+      length,
+      x_coord,
+      y_coord
+    );
     return {
       coords,
+      surroundingCoords,
       ship: new Ship(length),
     };
   }
@@ -109,9 +126,9 @@ class Gameboard {
       );
     }
 
-    const coordArr = [];
+    const coords = [];
     for (let i = 0; i < length; i++) {
-      coordArr.push([x, y]);
+      coords.push([x, y]);
       this.currentCoords.push([x, y]);
       if (orientationX) {
         x++;
@@ -120,11 +137,14 @@ class Gameboard {
       }
     }
 
-    this.surroundingCoords.push(
-      ...this._getSurroundingCoords(coordArr, length, orientationX)
+    const surroundingCoords = this._getSurroundingCoords(
+      coords,
+      length,
+      orientationX
     );
+    this.surroundingCoords.push(...surroundingCoords);
 
-    return coordArr;
+    return { coords, surroundingCoords };
   }
 
   _getSurroundingCoords(coord, length, orientationX) {

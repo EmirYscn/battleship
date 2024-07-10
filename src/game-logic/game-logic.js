@@ -39,6 +39,9 @@ function getPlayers() {
 function getGameState() {
   return gameState;
 }
+function setGameState(key, value) {
+  gameState[`${key}`] = value;
+}
 function getCurrentPlayer() {
   return gameState.currentPlayer;
 }
@@ -83,4 +86,5 @@ export {
   getOpposingPlayer,
   getCurrentPlayerDomBoard,
   getNonCurrentPlayerDomBoard,
+  setGameState,
 };

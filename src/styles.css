@@ -77,7 +77,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid white;
+  border: 1px solid #ffffff38;
   cursor: crosshair;
   transition: background-color 0.3s ease;
   position: relative;
@@ -90,14 +90,15 @@ h1 {
 
 /* Ship Styling */
 .ship {
-  background-color: black;
+  background-color: #89acd7;
+  border-radius: 2px;
 }
 
 .ship.hit {
-  background-color: red;
+  /* background-color: red; */
   cursor: default;
   font-size: 1.04em;
-  border: 2px solid yellow;
+  /* border: 2px solid yellow; */
 }
 
 .ship.sunk {
@@ -110,8 +111,12 @@ h1 {
 /* Missed Shot Styling */
 .missed {
   cursor: default;
-  background-color: rgb(105, 107, 105);
-  opacity: 0.7;
+  background-color: rgba(183, 189, 183, 0.3);
+  /* opacity: 0.7; */
+}
+.surround {
+  cursor: default;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Player Text Styling */
