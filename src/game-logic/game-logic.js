@@ -1,5 +1,10 @@
 import { Player } from "../player/player-class";
-import { initDom, populateGameboards } from "../dom-manip/dom-manip";
+import {
+  initDom,
+  populateGameboards,
+  setBeforeGameState,
+} from "../dom-manip/dom-manip";
+import { initButtons } from "../dom-manip/dom-buttons";
 
 let players = [];
 let gameState;
@@ -21,6 +26,17 @@ function initPlayers(player1Type, player2Type, player1Name, player2Name) {
       board: getBoardsDOM(1),
     },
   ];
+  console.log(players);
+}
+function reInitPlayer(player1Type, player1Name) {
+  players[0] = {
+    player: createPlayer(player1Type, player1Name),
+    board: getBoardsDOM(0),
+  };
+  initGameState();
+  populateGameboards();
+  setBeforeGameState();
+  console.log(players);
 }
 function initGameState() {
   gameState = {
@@ -75,6 +91,7 @@ function initGame(player1, player2) {
   initPlayers(player1.type, player2.type, player1.name, player2.name);
   initGameState();
   populateGameboards();
+  setBeforeGameState();
 }
 
 export {
@@ -87,4 +104,5 @@ export {
   getCurrentPlayerDomBoard,
   getNonCurrentPlayerDomBoard,
   setGameState,
+  reInitPlayer,
 };

@@ -7,8 +7,9 @@ import {
   getNonCurrentPlayerDomBoard,
   getGameState,
   setGameState,
+  reInitPlayer,
 } from "../game-logic/game-logic";
-
+import { playAgain } from "./dom-buttons";
 function initDom() {
   populateBoard();
 }
@@ -17,6 +18,7 @@ function populateBoard() {
   const boards = document.querySelectorAll(".board");
 
   boards.forEach((board, index) => {
+    board.innerHTML = "";
     for (let i = 0; i < 10; i++) {
       const rowIndex = i;
       for (let j = 0; j < 10; j++) {
@@ -145,20 +147,25 @@ function renderCurrentPlayerDisplay() {
   // set non current players board clickable
   setPlayerBoardEventListener(nonCurrentPlayerBoard, false);
 }
+
 function setBoardOpacity(shouldSetBothBoard = false) {
   const currentPlayer = getCurrentPlayer();
   const nonCurrentPlayer = getOpposingPlayer();
-  if (shouldSetBothBoard) {
-    const opposinglayerBoardDiv = document.querySelector(
-      `.${nonCurrentPlayer.name}-board`
-    );
-    opposinglayerBoardDiv.classList.add("half-opacity");
-  }
+  const opposinglayerBoardDiv = document.querySelector(
+    `.${nonCurrentPlayer.name}-board`
+  );
   const currentPlayerBoardDiv = document.querySelector(
     `.${currentPlayer.name}-board`
   );
+  opposinglayerBoardDiv.classList.remove("half-opacity");
+  currentPlayerBoardDiv.classList.remove("half-opacity");
+  if (shouldSetBothBoard) {
+    opposinglayerBoardDiv.classList.add("half-opacity");
+  }
+
   currentPlayerBoardDiv.classList.add("half-opacity");
 }
+
 function setEndGameState() {
   populateGameboards();
   renderHeaderInfo(getCurrentPlayer(), "has won");
@@ -170,7 +177,27 @@ function setEndGameState() {
   setPlayerBoardEventListener(currentPlayerBoard, true);
   setPlayerBoardEventListener(nonCurrentPlayerBoard, true);
   setBoardOpacity(true);
+
+  // populate play again button
+  playAgain();
 }
+
+function setBeforeGameState() {
+  const nonCurrentPlayerBoard = [...getNonCurrentPlayerDomBoard()];
+  const currentPlayerBoard = [...getCurrentPlayerDomBoard()];
+  setPlayerBoardEventListener(currentPlayerBoard, true);
+  setPlayerBoardEventListener(nonCurrentPlayerBoard, true);
+  setBoardOpacity(true);
+}
+
+function startGame() {
+  const nonCurrentPlayerBoard = [...getNonCurrentPlayerDomBoard()];
+  const currentPlayerBoard = [...getCurrentPlayerDomBoard()];
+  setPlayerBoardEventListener(currentPlayerBoard, false);
+  setPlayerBoardEventListener(nonCurrentPlayerBoard, false);
+  setBoardOpacity(false);
+}
+
 function setPlayerBoardEventListener(board, shouldRemoveEventListener) {
   if (shouldRemoveEventListener) {
     board.forEach((div) => {
@@ -189,6 +216,10 @@ function renderPlayerBoard(player) {
   //render currentcoords
   // if player is ai dont render currentcoords
   if (player.player.type !== "ai") {
+    const playerBoard = Array.from(player.board);
+    playerBoard.forEach((element) => {
+      element.classList.remove("ship");
+    });
     renderGameboardData(
       player,
       currentPlayer.gameboard.currentCoords,
@@ -292,4 +323,10 @@ function createDiv(className) {
   return div;
 }
 
-export { initDom, populateGameboards };
+export {
+  initDom,
+  populateGameboards,
+  renderGameboardData,
+  startGame,
+  setBeforeGameState,
+};
