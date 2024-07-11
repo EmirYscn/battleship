@@ -69,12 +69,7 @@ class Gameboard {
       this.ships.push(this._generateShip(1));
     }
 
-    // console.log(this.currentCoords);
-    // console.log(this.surroundingCoords);
-    // this.surroundingCoords = [...new Set(this.surroundingCoords)];
     this.surroundingCoords = removeDuplicateArrays(this.surroundingCoords);
-    // console.log(this.surroundingCoords);
-    console.log(this.ships);
   }
 
   _generateShip(length, x_coord = null, y_coord = null) {

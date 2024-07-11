@@ -62,7 +62,7 @@ function generateCoordNums(div) {
   }
 }
 
-function handleDivClick(e) {
+async function handleDivClick(e) {
   // if hit ship is succesful
   if (hitShip(e.target.dataset)) {
     // continue playing with the current player
@@ -96,12 +96,163 @@ function handleDivClick(e) {
     }
     // if hit ship is not successful
   } else {
-    // change the current player
     changeCurrentPlayer();
+    populateGameboards();
+    renderCurrentPlayerDisplay();
+    // change the current player
     renderHeaderInfo(getCurrentPlayer(), "is attacking...");
+    const nonAIPlayer = getPlayers()[0];
+    const playerGameboard = nonAIPlayer.player.gameboard;
+
+    await aiAttackWithDelay(playerGameboard);
+    if (playerGameboard.hasAllShipsBeenSunk()) return;
   }
 
   populateGameboards();
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  renderCurrentPlayerDisplay();
+}
+
+async function aiAttackWithDelay(playerGameboard) {
+  while (true) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!aiAttack()) {
+      if (playerGameboard.hasAllShipsBeenSunk()) {
+        console.log("winner is", getCurrentPlayer());
+        setEndGameState();
+        return;
+      }
+      changeCurrentPlayer();
+      renderHeaderInfo(getCurrentPlayer(), "is attacking...");
+      break;
+    }
+    populateGameboards();
+    renderCurrentPlayerDisplay();
+  }
+}
+
+// function aiAttack() {
+//   // get the board ai is attacking
+//   const nonAIPlayer = getPlayers()[0];
+//   const playerGameboard = nonAIPlayer.player.gameboard;
+
+//   const attackSequence = getAttackSequence();
+//   attackSequence.forEach((coord) => {
+//     if (!playerGameboard.receiveAttack(coord)) {
+//       return false;
+//     }
+//   });
+
+//   return true;
+
+//   // if (!playerGameboard.receiveAttack(coord)) {
+//   //   changeCurrentPlayer();
+//   //   renderHeaderInfo(getCurrentPlayer(), "is attacking...");
+//   //   return;
+//   // }
+// }
+
+// function getAttackSequence() {
+//   // get the board ai is attacking
+//   const nonAIPlayer = getPlayers()[0];
+//   const playerGameboard = nonAIPlayer.player.gameboard;
+//   const playerGameboardCurrentCoords = playerGameboard.currentCoords;
+
+//   const attackSequence = [];
+
+//   let coord = getAIAttackCoords();
+//   attackSequence.push(coord);
+
+//   console.log(coord);
+//   console.log(playerGameboardCurrentCoords);
+//   while (hasCoordCollision(coord, playerGameboardCurrentCoords)) {
+//     coord = getAIAttackCoords();
+//     attackSequence.push(coord);
+//   }
+
+//   return attackSequence;
+// }
+
+// function getAIAttackCoords() {
+//   // get the board ai is attacking
+//   const nonAIPlayer = getPlayers()[0];
+//   const playerGameboard = nonAIPlayer.player.gameboard;
+//   // data to check against coords
+//   const hitShots = playerGameboard.hitShots;
+//   const missedShots = playerGameboard.missedShots;
+//   const surroundingShots = playerGameboard.surroundingShots;
+
+//   // generate x and y coord
+//   let x_coord = generateRandomNumber();
+//   let y_coord = generateRandomNumber();
+
+//   while (
+//     hasCoordCollision([x_coord, y_coord], hitShots) ||
+//     hasCoordCollision([x_coord, y_coord], missedShots) ||
+//     hasCoordCollision([x_coord, y_coord], surroundingShots)
+//   ) {
+//     x_coord = generateRandomNumber();
+//     y_coord = generateRandomNumber();
+//   }
+
+//   const coord = [x_coord, y_coord];
+
+//   return coord;
+// }
+
+function aiAttack() {
+  // get the board ai is attacking
+  const nonAIPlayer = getPlayers()[0];
+  const playerGameboard = nonAIPlayer.player.gameboard;
+
+  if (playerGameboard.hasAllShipsBeenSunk()) {
+    console.log("winner is", getCurrentPlayer());
+    return false;
+  }
+  // data to check against coords
+  const hitShots = playerGameboard.hitShots;
+  const missedShots = playerGameboard.missedShots;
+  const surroundingShots = playerGameboard.surroundingShots;
+
+  // generate x and y coord
+  let x_coord = generateRandomNumber();
+  let y_coord = generateRandomNumber();
+
+  while (
+    hasCoordCollision([x_coord, y_coord], hitShots) ||
+    hasCoordCollision([x_coord, y_coord], missedShots) ||
+    hasCoordCollision([x_coord, y_coord], surroundingShots)
+  ) {
+    x_coord = generateRandomNumber();
+    y_coord = generateRandomNumber();
+  }
+
+  const coord = [x_coord, y_coord];
+
+  const isSuccessful = playerGameboard.receiveAttack(coord);
+
+  const currentShip = playerGameboard._getShip([x_coord, y_coord]);
+
+  if (currentShip && currentShip.sunk) {
+    const surroundingCoords = playerGameboard._getShipSurroundingCoords([
+      x_coord,
+      y_coord,
+    ]);
+    playerGameboard.surroundingShots.push(...surroundingCoords);
+  }
+
+  return isSuccessful;
+}
+
+function hasCoordCollision(coord, otherCoord) {
+  return otherCoord.some((existingCoord) => {
+    // console.log(arraysEqual(existingCoord, coord));
+    return arraysEqual(existingCoord, coord);
+  });
+}
+function arraysEqual(arr1, arr2) {
+  if (arr1.length !== arr2.length) return false;
+  return arr1.every((element, index) => element === arr2[index]);
 }
 
 function hitShip(player) {
@@ -118,10 +269,9 @@ function hitShip(player) {
 
 function populateGameboards() {
   const players = getPlayers();
-  console.log(players);
   renderPlayerNames(players);
   renderHeaderInfo(getCurrentPlayer(), "is attacking...");
-  renderCurrentPlayerDisplay();
+
   players.forEach((player) => {
     renderPlayerBoard(player);
   });
@@ -321,6 +471,9 @@ function createDiv(className) {
   const div = document.createElement("div");
   div.classList.add(className);
   return div;
+}
+function generateRandomNumber() {
+  return Math.floor(Math.random() * 10);
 }
 
 export {

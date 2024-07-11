@@ -57,7 +57,7 @@ function playAgain() {
   btn.addEventListener("click", () => {
     initGame(
       { type: "human", name: "player-1" },
-      { type: "human", name: "player-2" }
+      { type: "ai", name: "player-2" }
     );
     btn.remove();
     initButtons();

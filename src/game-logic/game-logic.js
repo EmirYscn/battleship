@@ -26,7 +26,7 @@ function initPlayers(player1Type, player2Type, player1Name, player2Name) {
       board: getBoardsDOM(1),
     },
   ];
-  console.log(players);
+  // console.log(players);
 }
 function reInitPlayer(player1Type, player1Name) {
   players[0] = {
